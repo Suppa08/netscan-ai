@@ -1,182 +1,264 @@
 # 🔍 NetScan AI — Network Security Scanner
-
+ 
 AI-powered network port scanner with risk analysis, interactive dashboard, and PDF reporting.
-
-## Tech Stack
-
-| Layer       | Technology                        |
-|-------------|-----------------------------------|
-| Frontend    | React 18 + Recharts + Lucide      |
-| Backend API | FastAPI (Python 3.11)             |
-| Scanner     | asyncio sockets + python-nmap     |
-| AI/ML       | Scikit-learn + TensorFlow (opt.)  |
-| Database    | PostgreSQL 16 (async SQLAlchemy)  |
-| Auth        | JWT (python-jose + bcrypt)        |
-| Reports     | ReportLab PDF                     |
-| Deploy      | Docker Compose                    |
-
+ 
 ---
-
-## 🚀 Quick Start (Docker)
-
+ 
+## 🚀 Quick Start — Docker (Easiest!) ⭐
+ 
+> Docker use කරොත් Python, Node.js, PostgreSQL install කරන්න ඕනේ නැහැ!
+ 
+### Step 1 — Docker Desktop Install කරන්න
+ 
+👉 https://www.docker.com/products/docker-desktop
+ 
+Download කරලා install කරන්න. Install වුණාම restart කරන්න.
+ 
+### Step 2 — Project Clone කරන්න
+ 
 ```bash
-# 1. Clone / extract project
-cd netscan
-
-# 2. Copy env files
-cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env
-
-# 3. Build and start everything
+git clone https://github.com/Suppa08/netscan-ai.git
+cd netscan-ai
+```
+ 
+### Step 3 — Run කරන්න
+ 
+```bash
 docker-compose up --build
-
-# 4. Seed the database (first time only)
+```
+ 
+First time build වෙන්න 5-10 minutes ගන්නවා.
+ 
+### Step 4 — Demo Data Add කරන්න (First time only)
+ 
+නව terminal එකක් open කරලා:
+ 
+```bash
 docker-compose exec backend python seed.py
 ```
-
-Open **http://localhost** in your browser.
-Default login: `admin` / `admin123`
-
+ 
+### Step 5 — Browser එකේ Open කරන්න
+ 
+```
+http://localhost
+```
+ 
+- Username: admin
+- Password: admin123
+### App Close කරන්න
+ 
+```bash
+docker-compose down
+```
+ 
+### ආයෙ Start කරන්න
+ 
+```bash
+docker-compose up
+```
+ 
 ---
-
-## 🛠️ Local Development
-
-### Backend
-
+ 
+## 🛠️ Manual Setup (Docker නැතිව)
+ 
+### Requirements
+ 
+- Python 3.11+
+- Node.js v20+
+- PostgreSQL 16
+- Git
+### Step 1 — Clone කරන්න
+ 
+```bash
+git clone https://github.com/Suppa08/netscan-ai.git
+cd netscan-ai
+```
+ 
+### Step 2 — Database Setup
+ 
+```bash
+psql -U postgres
+```
+ 
+```sql
+CREATE USER netscan WITH PASSWORD 'netscan_pass';
+CREATE DATABASE netscan_db OWNER netscan;
+GRANT ALL PRIVILEGES ON DATABASE netscan_db TO netscan;
+\q
+```
+ 
+### Step 3 — Backend Setup
+ 
 ```bash
 cd backend
-
-# Create virtualenv
 python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Start PostgreSQL (Docker)
-docker run -d \
-  -e POSTGRES_USER=netscan \
-  -e POSTGRES_PASSWORD=netscan_pass \
-  -e POSTGRES_DB=netscan_db \
-  -p 5432:5432 postgres:16-alpine
-
-# Copy env
-cp .env.example .env
-
-# Run API
-uvicorn app.main:app --reload --port 8000
-
-# Seed demo data
+venv\Scripts\activate
+pip install -r requirements.txt --timeout 300
+copy .env.example .env
 python seed.py
+uvicorn app.main:app --reload --port 8000
 ```
-
-API docs: http://localhost:8000/docs
-
-### Frontend
-
+ 
+### Step 4 — Frontend Setup
+ 
 ```bash
 cd frontend
+copy .env.example .env
 npm install
-cp .env.example .env
 npm run dev
 ```
-
-Open http://localhost:3000
-
----
-
-## 🤖 AI / ML
-
-### Rule-Based (default, no training needed)
-Instant risk scoring via weighted port rules + expert security knowledge.
-
-### Train Scikit-learn Model (recommended)
+ 
+### Step 5 — Open
+ 
+```
+http://localhost:3000
+```
+ 
+Login: admin / admin123
+ 
+### හැම දිනකම Start කරන්න
+ 
+Terminal 1 — Backend:
 ```bash
 cd backend
-python ml_trainer.py                  # train on synthetic data
-python ml_trainer.py --use-db         # train on your real scan history
+venv\Scripts\activate
+uvicorn app.main:app --reload --port 8000
 ```
-
+ 
+Terminal 2 — Frontend:
+```bash
+cd frontend
+npm run dev
+```
+ 
+---
+ 
+## 📊 Tech Stack
+ 
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 18 + Recharts + Lucide |
+| Backend | FastAPI (Python 3.11) |
+| Scanner | asyncio sockets + python-nmap |
+| AI/ML | Scikit-learn + TensorFlow (opt.) |
+| Database | PostgreSQL 16 (async SQLAlchemy) |
+| Auth | JWT (python-jose + bcrypt) |
+| Reports | ReportLab PDF |
+| Deploy | Docker Compose |
+ 
+---
+ 
+## 📊 Dashboard Features
+ 
+- Total Scans — count of all historical scans
+- Hosts Scanned — total unique IPs assessed
+- Open Ports — cumulative across all scans
+- High Risk Hosts — hosts with critical/high risk score
+- Port Distribution — bar chart of most-seen open ports
+- Risk Distribution — pie chart by risk level
+- Scan Activity — 30-day timeline
+- AI Recommendations — prioritized security actions
+- PDF Export — professional downloadable reports
+---
+ 
+## 🔒 Scan Types
+ 
+| Type | Description | Requires |
+|------|-------------|----------|
+| TCP Connect | Full 3-way handshake (default) | Normal user |
+| SYN Scan | Half-open, stealthier, faster | Admin/Root |
+| UDP Scan | UDP port detection (slower) | Admin/Root |
+ 
+---
+ 
+## 🎯 Supported Targets
+ 
+```
+127.0.0.1              # Your own computer
+192.168.1.1            # Your router
+192.168.1.0/24         # Your home network
+scanme.nmap.org        # Legal practice target
+```
+ 
+Only scan networks you own or have permission to test!
+ 
+---
+ 
+## 🤖 AI / ML
+ 
+### Default — Rule-Based (No training needed)
+Instant risk scoring using weighted port rules and expert security knowledge.
+ 
+### Train Scikit-learn Model
+ 
+```bash
+cd backend
+python ml_trainer.py
+python ml_trainer.py --use-db
+```
+ 
 ### Train TensorFlow Neural Network
+ 
 ```bash
 pip install tensorflow
-python ml_trainer.py                  # trains both sklearn + TF automatically
+python ml_trainer.py
 ```
-
-Models are saved to `backend/ml_models/` and auto-loaded by the API.
-
+ 
 ---
-
-## 🧪 Testing
-
+ 
+## 🧪 Tests
+ 
 ```bash
 cd backend
 pip install pytest pytest-asyncio
 pytest tests/ -v
 ```
-
+ 
 ---
-
-## 📊 Dashboard Features
-
-- **Total Scans** — count of all historical scans
-- **Hosts Scanned** — total unique IPs assessed  
-- **Open Ports** — cumulative across all scans
-- **High Risk Hosts** — hosts with critical/high risk score
-- **Port Distribution** — bar chart of most-seen open ports
-- **Risk Distribution** — pie chart by risk level
-- **Scan Activity** — 30-day timeline
-- **AI Recommendations** — prioritized security actions
-
----
-
-## 🔒 Scan Types
-
-| Type         | Description                           | Requires         |
-|--------------|---------------------------------------|------------------|
-| TCP Connect  | Full 3-way handshake (default)        | Normal user      |
-| SYN Scan     | Half-open, stealthier                 | Root / NET_RAW   |
-| UDP Scan     | UDP port detection (slower)           | Root             |
-
----
-
+ 
 ## 📄 PDF Reports
-
-Click **Export PDF** on any completed scan. Reports include:
+ 
+Click Export PDF on any completed scan:
 - Executive summary with risk metrics
-- Top open ports table
+- Top open ports distribution table
 - AI security recommendations with CVE references
-- Scan metadata
-
+- Full scan metadata
 ---
-
-## ⚠️ Legal Notice
-
-Only scan networks and systems you own or have **explicit written permission** to test.
-Unauthorized port scanning may violate computer crime laws in your jurisdiction.
-
----
-
+ 
 ## 📁 Project Structure
-
+ 
 ```
 netscan/
 ├── backend/
 │   ├── app/
-│   │   ├── api/          # FastAPI routers (auth, scans, reports, dashboard)
-│   │   ├── core/         # Config, database, security (JWT)
-│   │   ├── ml/           # ML inference loader
-│   │   ├── models/       # SQLAlchemy ORM models
-│   │   └── services/     # Scanner engine, AI analyzer, PDF generator
-│   ├── alembic/          # DB migrations
-│   ├── tests/            # pytest unit tests
-│   ├── ml_trainer.py     # Standalone ML training script
-│   ├── seed.py           # Demo data seeder
+│   │   ├── api/          # Auth, Scans, Reports, Dashboard
+│   │   ├── core/         # Config, Database, Security (JWT)
+│   │   ├── ml/           # ML Inference Loader
+│   │   ├── models/       # SQLAlchemy ORM Models
+│   │   └── services/     # Scanner, AI Analyzer, PDF Generator
+│   ├── alembic/          # Database Migrations
+│   ├── tests/            # pytest Unit Tests
+│   ├── ml_trainer.py     # ML Training Script
+│   ├── seed.py           # Demo Data Seeder
 │   └── requirements.txt
 ├── frontend/
 │   └── src/
 │       ├── pages/        # Dashboard, Scans, ScanDetail, NewScan, Login
-│       └── utils/        # API client
+│       └── utils/        # API Client
 ├── docker-compose.yml
 └── README.md
 ```
+ 
+---
+ 
+## ⚠️ Legal Notice
+ 
+Only scan networks and systems you own or have explicit written permission to test.
+Unauthorized port scanning may violate computer crime laws in your jurisdiction.
+ 
+---
+ 
+## 👨‍💻 Author
+ 
+Suppa08 — https://github.com/Suppa08/netscan-ai
+ 
